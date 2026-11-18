@@ -1,215 +1,78 @@
-from json import dump,load
-from os import name as os_name
-from os import get_terminal_size
-from subprocess import run as sub_run
-from tabulate import tabulate
-__lazy_modules__ = ["openpyxl","subprocess","os"]
-screen_size=get_terminal_size().columns
-def create_default_database():                                                #soon to be removed
-    while True:
-        try:
-            num_entry=int(input("Enter the number of entries you want to add: "))
-            if num_entry > 0:
-                break
-            print("Enter a positive number.")
-        except Exception as e:
-            print("Enter a positive number")       
-    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-    database = {}
-    if num_entry <= 0:
-        print("Please enter a positive number of entries.")
-    else:
-        for i in range(num_entry):
-            if num_entry <= 0:
-                print("Please enter a positive number of entries.")
-                break
-            name = input("Enter the name: ")
-            dob=input("Enter the date of birth (DD-MM-YYYY): ")
-            fname=input("Enter the father's name: ")
-            mname=input("Enter the mother's name: ")
-            detail_set= {"Name":name,"date_of_birth": dob,"father_name": fname,"mother_name": mname}
-
-            letter_index = i // 1000
-            number = (i % 1000) + 1
-            roll_no = alphabet[letter_index] + f"{number:04d}"
-            data={}
-            data[roll_no]=detail_set
-
-            print(roll_no)
-            database.update(data)
-
-    print(database)
-    python_file_content =database
-    with open(f"{database_name}.eL", "w") as file:
-        dump(python_file_content,file)
-
-def dump_database(database):
-    with open(f"{database_name}.eL", "w") as file:
-        dump(database,file)
-
-def load_database():
-    try:
-        with open(f"{database_name}.eL", "r") as file:
-            k=load(file)
-            if k==None:
-                return {}
-            else:
-                return k
-    except FileNotFoundError as e:
-        print(f"Database file not found: {e}")
-
-def load_custom_schema():
-    try:
-        with open(f"custom_schema-{database_name}.eLs", "r") as file:
-            content = load(file)
-            if content==None:
-                return {}
-            else:
-                return content
-    except FileNotFoundError as e:
-        print(f"Database file not found: {e}")
-
-
-def table_loader(database,num,primary_key):
-    schema=load_custom_schema()
-    headers=[]
-    rows=[]
-    if num=="all":
-        for i,j in schema.items():
-            headers.append(i)
-            headers.extend(j.keys())
-        for a,b in database.items():
-            rown=[a]
-            for k,v in b.items():
-                rown.append(v)
-            rows.append(rown)
-        return headers,rows
-    elif num=="single":
-        if primary_key in database:
-            record = database[primary_key]
-            for i,j in schema.items():
-                headers.append(i)
-                headers.extend(j.keys())
-            rows = [[primary_key] + list(record.values())]
-        return headers,rows
-
-
-
-def clear_screen():
-    if os_name=="nt":
-        sub_run(['cls'],shell=True)
-    else:
-        sub_run(['clear'])
-    print(registrarY_text)
-
-def custom_schema():
-    primary_key=input("Enter unique primary key field:")
-    fields=input("enter fields with data type(example name;str,age;int,gender;str):")
-    schema={}
-    schema[primary_key] = {}
-    for i in fields.split(","):
-        field_name, data_type = i.split(";",1)
-        schema[primary_key][field_name] = data_type
-    print("Custom schema created:",schema)
-    with open(f"custom_schema-{database_name}.eLs", "w") as file:
-        dump(schema,file)
-
-def add_custom_data():
-    try:
-        schema=load_custom_schema()
-        for key,value in schema.items():
-            primary_key_name=key
-        schema_lengths =len(schema[primary_key_name])
-        num_entry=int(input("Enter the number of entries you want to add: "))
-        try:
-            database=load_database()
-        except FileNotFoundError:
-            database = {}
-        if num_entry <= 0:
-            print("Please enter a positive number of entries.")
-        else:
-            for i in range(num_entry):
-                primary_key = input(f"Enter {primary_key_name} for entry number{i + 1}: ")
-                if primary_key in database:
-                    print("Primary key already exists you cannot add it to")
-                else:
-                    database[primary_key] = {}
-                    for j in range(schema_lengths):
-                        field_name = list(schema[primary_key_name].keys())[j]
-                        data_type = schema[primary_key_name][field_name]
-                        if data_type == "str":
-                            value = input(f"Enter {field_name} (string): ")
-                        elif data_type == "int":
-                            value = int(input(f"Enter {field_name} (integer): "))
-                        elif data_type == "float":
-                            value = float(input(f"Enter {field_name} (float): "))
-                        else:
-                            print(f"Unsupported data type: {data_type}")
-                            continue
-                        database[primary_key][field_name] = value      
+valid_record=False
+                            break
+                        record[field_name]=value
+                        break
+                    except ValueError:
+                        print(f"Invalid value! Expected data type: {data_type}")
+                if not valid_record:
+                    break
+            if valid_record:
+                database[primary_key]=record
         dump_database(database)
-    except FileNotFoundError:
-        print("scheme not found/error ") 
     except ValueError:
-        print("type anly the assigned datatypes")
+        print("Please enter a valid number and values matching the assigned data types.")
     except OSError as e:
-        print(f"{e} has occured\nPlease allow your antivirus to make changes to a purticuular file/folder")
+        print(f"{e} has occurred. Check file permissions and antivirus settings.")
     except Exception as e:
-        print(f"Error occured\nError name:{e}")
+        print(f"Error occurred: {e}")
+
 
 def view_all():
     database = load_database()
+    if not database:
+        print("The database is empty.")
+        return
     headers,rows=table_loader(database,"all","")
-    max_col_width = max(10, screen_size // len(headers))
+    max_col_width = max(10, screen_size // max(1, len(headers)))
     print(tabulate(rows,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
+
+
 def search_database(primary_key):
     database=load_database()
-
     if primary_key in database:
         headers,table_list=table_loader(database,"single",primary_key)
-        for i,j in enumerate(table_list):
-            if primary_key in j:
-                max_col_width = max(10, screen_size // len(headers))
-                print(tabulate([table_list[i]],headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
+        if headers and table_list:
+            max_col_width = max(10, screen_size // max(1, len(headers)))
+            print(tabulate(table_list,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
     else:
-        print("roll number",primary_key,"not found in the database")
+        print("primary key",primary_key,"not found in the database")
+
 
 def update_database():
     database=load_database()
-    
-    primary_key = input(f"Enter primary key to search: ")
-        
+    if not database:
+        print("The database is empty.")
+        return
+    primary_key = input("Enter primary key to search: ").strip()
     if primary_key in database:
         search_database(primary_key)
         print("Enter the new details to update the database or press ENTER KEY to keep the original values")
+        schema=load_custom_schema()
+        primary_key_name=next(iter(schema), None)
         for field_name, value in database[primary_key].items():
-            schema=load_custom_schema()
-            for ii in schema.keys():
-                primary_key_name=ii
-            datatype=schema[primary_key_name][field_name]
+            datatype=schema.get(primary_key_name, {}).get(field_name) if primary_key_name else None
+            if datatype is None:
+                datatype = "int" if isinstance(value, int) and not isinstance(value, bool) else "float" if isinstance(value, float) else "str"
             while True:
                 new_value = input(f"      {field_name} (current value: {value}): ")
                 if new_value=="":
                     break
                 try:
-                    if datatype=="int" and new_value!="":
+                    if datatype=="int":
                         database[primary_key][field_name] = int(new_value)
-                        break
-                    elif datatype=="float" and new_value!="":
+                    elif datatype=="float":
                         database[primary_key][field_name] = float(new_value)
-                        break
-                    elif (datatype=="str" or datatype=="string") and new_value!="":
+                    else:
                         database[primary_key][field_name] = str(new_value)
-                        break
+                    break
                 except ValueError:
                     print(f"Invalid value! Expected data type: {datatype}")
-        with open(f"{database_name}.eL", "w") as file:
-            dump(database,file)
-        print("Database Updated\nCurrent Table:")
+        dump_database(database)
+        print("Database Updated\\nCurrent Table:")
         search_database(primary_key)
     else:
         print("Primary Key",primary_key,"not found in the database")
+
 
 def delete_data_database():
     database=load_database()
@@ -229,9 +92,10 @@ def export_file_as_excel(database):
     from openpyxl import Workbook as workbook       #lazy
     wbk=workbook()
     wak=wbk.active
-    wak.title=f"{database_name}"
+    wak.title=f"{database_name}"[:31]
     headers,rows=table_loader(database,"all","")
-    wak.append(headers)
+    if headers:
+        wak.append(headers)
     for i in rows:
         wak.append(i)
     from openpyxl.styles import Font
@@ -240,10 +104,16 @@ def export_file_as_excel(database):
     wbk.save(f"{database_name}.xlsx") 
 def database_name_taker():
     while True:
-        database_name=str(input("Enter the name of the database to do the operations:"))
+        database_name=str(input("Enter the name of the database to do the operations:")).strip()
+        if not database_name or database_name in (".", "..") or any(char in database_name for char in '/\\:*?"<>|\\x00'):
+            print("Enter a valid database name (without path separators or special characters).")
+            continue
         try:
             with open(f"{database_name}.eL", "r") as file:
-                load(file)
+                existing=load(file)
+            if existing is not None and not isinstance(existing, dict):
+                print("Database file has an invalid format.")
+                continue
             if database_name!="" and database_name!=" ":
                 return database_name
         except FileNotFoundError:
@@ -279,7 +149,7 @@ while True:
     print("What do you want to do?\nType Menu for printing menu/Help for Help ")
     if number_for_check==0:
         headers=["Option","Cammand"]
-        max_col_width = max(10, screen_size // len(headers))
+        max_col_width = max(10, screen_size // max(1, len(headers)))
         print(tabulate(menu,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
         number_for_check=1
     option=str(input("Enter your option/command >>>"))
@@ -320,62 +190,3 @@ while True:
     [2, "Create Custom Schema\n",
      "Design a database structure by specifying a unique primary key \n"
      "and custom field names with their data types (str, int, float). \n"
-     "The schema defines the fields available when adding and managing records.\n"],
-
-    [3, "Add Data\n",
-     "Insert new records into the active database using its defined schema. \n"
-     "Enter a unique primary key and provide values matching the assigned \n"
-     "data types. Existing primary keys cannot be reused.\n"],
-
-    [4, "View All\n",
-     "Display all records in the active database in a structured table. \n"
-     "Column headers are generated from the schema, making records easier \n"
-     "to read and compare.\n"],
-
-    [5, "Search\n",
-     "Retrieve a specific record by entering its unique primary key \n"
-     "or Roll Number. Displays the matching record's primary key, \n"
-     "field names, and stored values.\n"],
-
-    [6, "Update\n",
-     "Modify the field values of an existing record by entering its \n"
-     "primary key. Press ENTER without typing a new value to retain \n"
-     "the existing value. Changes are saved to the database file.\n"],
-
-    [7, "Delete\n",
-     "Remove a record from the active database using its primary key. \n"
-     "The record is displayed before deletion, and confirmation is \n"
-     "requested to help prevent accidental data loss.\n"],
-
-    [8, "Export\n",
-     "Export the active database records to an Excel (.xlsx) file. \n"
-     "The first row contains column headers formatted in bold, followed \n"
-     "by the database records. Requires the openpyxl package.\n"],
-
-    [9, "Help",
-     "Display this navigation guide, including menu options, feature "
-     "descriptions, and supported commands for managing the database."],
-
-    [10, "Exit",
-     "Terminate the registrarY session. Database modifications are saved by their respective operations before exiting."]
-]
-        headers = ["Option", "Action", "Description"]
-        max_col_width = max(10, screen_size // len(headers))
-        print(tabulate(help_data,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
-    elif option.lower()=="exit" or option=="10":
-        clear_screen()
-        print("""Kicking you out of the program......
-DONE.""")
-        break
-    elif option.lower()=="menu" or option=="":
-        clear_screen()
-        headers=["Option","Cammand"]
-        max_col_width = max(10, screen_size // len(headers))
-        print(tabulate(menu,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
-    else:
-        clear_screen()
-        headers=["Option","Cammand"]
-        max_col_width = max(10, screen_size // len(headers))
-        print(tabulate(menu,["Option","Cammand"],tablefmt="rounded_grid",maxcolwidths=max_col_width))
-        print("input valid option create/search")
-    print("#" * 100)
