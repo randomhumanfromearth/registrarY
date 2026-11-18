@@ -1,182 +1,381 @@
-
-    
-  
-
-    schema = active_schema(database)
-    if not schema:
-        print("No schema is available; cannot safely update this record.")
-        return
-    primary_key_name, fields = next(iter(schema.items()))
-
-    search_database(primary_key)
-    print("Enter new values, or press ENTER to keep the current value.")
-    record = database[primary_key]
-    for field_name, data_type in fields.items():
-        current = record.get(field_name, "")
-        while True:
-            new_value = input(f"{field_name} (current: {current}): ")
-            if new_value == "":
+from json import dump,load
+from os import name as os_name
+from os import get_terminal_size
+from subprocess import run as sub_run
+from tabulate import tabulate
+__lazy_modules__ = ["openpyxl","subprocess","os"]
+screen_size=get_terminal_size().columns
+def create_default_database():                                                #soon to be removed
+    while True:
+        try:
+            num_entry=int(input("Enter the number of entries you want to add: "))
+            if num_entry > 0:
                 break
-            try:
-                kind = str(data_type).lower()
-                if kind in ("str", "string"):
-                    record[field_name] = new_value
-                elif kind == "int":
-                    record[field_name] = int(new_value)
-                elif kind == "float":
-                    record[field_name] = float(new_value)
+            print("Enter a positive number.")
+        except Exception as e:
+            print("Enter a positive number")       
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    database = {}
+    if num_entry <= 0:
+        print("Please enter a positive number of entries.")
+    else:
+        for i in range(num_entry):
+            if num_entry <= 0:
+                print("Please enter a positive number of entries.")
+                break
+            name = input("Enter the name: ")
+            dob=input("Enter the date of birth (DD-MM-YYYY): ")
+            fname=input("Enter the father's name: ")
+            mname=input("Enter the mother's name: ")
+            detail_set= {"Name":name,"date_of_birth": dob,"father_name": fname,"mother_name": mname}
+
+            letter_index = i // 1000
+            number = (i % 1000) + 1
+            roll_no = alphabet[letter_index] + f"{number:04d}"
+            data={}
+            data[roll_no]=detail_set
+
+            print(roll_no)
+            database.update(data)
+
+    print(database)
+    python_file_content =database
+    with open(f"{database_name}.eL", "w") as file:
+        dump(python_file_content,file)
+
+def dump_database(database):
+    with open(f"{database_name}.eL", "w") as file:
+        dump(database,file)
+
+def load_database():
+    try:
+        with open(f"{database_name}.eL", "r") as file:
+            k=load(file)
+            if k==None:
+                return {}
+            else:
+                return k
+    except FileNotFoundError as e:
+        print(f"Database file not found: {e}")
+
+def load_custom_schema():
+    try:
+        with open(f"custom_schema-{database_name}.eLs", "r") as file:
+            content = load(file)
+            if content==None:
+                return {}
+            else:
+                return content
+    except FileNotFoundError as e:
+        print(f"Database file not found: {e}")
+
+
+def table_loader(database,num,primary_key):
+    schema=load_custom_schema()
+    headers=[]
+    rows=[]
+    if num=="all":
+        for i,j in schema.items():
+            headers.append(i)
+            headers.extend(j.keys())
+        for a,b in database.items():
+            rown=[a]
+            for k,v in b.items():
+                rown.append(v)
+            rows.append(rown)
+        return headers,rows
+    elif num=="single":
+        if primary_key in database:
+            record = database[primary_key]
+            for i,j in schema.items():
+                headers.append(i)
+                headers.extend(j.keys())
+            rows = [[primary_key] + list(record.values())]
+        return headers,rows
+
+
+
+def clear_screen():
+    if os_name=="nt":
+        sub_run(['cls'],shell=True)
+    else:
+        sub_run(['clear'])
+    print(registrarY_text)
+
+def custom_schema():
+    primary_key=input("Enter unique primary key field:")
+    fields=input("enter fields with data type(example name;str,age;int,gender;str):")
+    schema={}
+    schema[primary_key] = {}
+    for i in fields.split(","):
+        field_name, data_type = i.split(";",1)
+        schema[primary_key][field_name] = data_type
+    print("Custom schema created:",schema)
+    with open(f"custom_schema-{database_name}.eLs", "w") as file:
+        dump(schema,file)
+
+def add_custom_data():
+    try:
+        schema=load_custom_schema()
+        for key,value in schema.items():
+            primary_key_name=key
+        schema_lengths =len(schema[primary_key_name])
+        num_entry=int(input("Enter the number of entries you want to add: "))
+        try:
+            database=load_database()
+        except FileNotFoundError:
+            database = {}
+        if num_entry <= 0:
+            print("Please enter a positive number of entries.")
+        else:
+            for i in range(num_entry):
+                primary_key = input(f"Enter {primary_key_name} for entry number{i + 1}: ")
+                if primary_key in database:
+                    print("Primary key already exists you cannot add it to")
                 else:
-                    print(f"Unsupported data type: {data_type}")
+                    database[primary_key] = {}
+                    for j in range(schema_lengths):
+                        field_name = list(schema[primary_key_name].keys())[j]
+                        data_type = schema[primary_key_name][field_name]
+                        if data_type == "str":
+                            value = input(f"Enter {field_name} (string): ")
+                        elif data_type == "int":
+                            value = int(input(f"Enter {field_name} (integer): "))
+                        elif data_type == "float":
+                            value = float(input(f"Enter {field_name} (float): "))
+                        else:
+                            print(f"Unsupported data type: {data_type}")
+                            continue
+                        database[primary_key][field_name] = value      
+        dump_database(database)
+    except FileNotFoundError:
+        print("scheme not found/error ") 
+    except ValueError:
+        print("type anly the assigned datatypes")
+    except OSError as e:
+        print(f"{e} has occured\nPlease allow your antivirus to make changes to a purticuular file/folder")
+    except Exception as e:
+        print(f"Error occured\nError name:{e}")
+
+def view_all():
+    database = load_database()
+    headers,rows=table_loader(database,"all","")
+    max_col_width = max(10, screen_size // len(headers))
+    print(tabulate(rows,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
+def search_database(primary_key):
+    database=load_database()
+
+    if primary_key in database:
+        headers,table_list=table_loader(database,"single",primary_key)
+        for i,j in enumerate(table_list):
+            if primary_key in j:
+                max_col_width = max(10, screen_size // len(headers))
+                print(tabulate([table_list[i]],headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
+    else:
+        print("roll number",primary_key,"not found in the database")
+
+def update_database():
+    database=load_database()
+    
+    primary_key = input(f"Enter primary key to search: ")
+        
+    if primary_key in database:
+        search_database(primary_key)
+        print("Enter the new details to update the database or press ENTER KEY to keep the original values")
+        for field_name, value in database[primary_key].items():
+            schema=load_custom_schema()
+            for ii in schema.keys():
+                primary_key_name=ii
+            datatype=schema[primary_key_name][field_name]
+            while True:
+                new_value = input(f"      {field_name} (current value: {value}): ")
+                if new_value=="":
                     break
-                break
-            except ValueError:
-                print(f"Invalid value. Expected {data_type}. Please try again.")
-
-    database[primary_key] = record
-    dump_database(database)
-    print("Database updated.")
-    search_database(primary_key)
-
+                try:
+                    if datatype=="int" and new_value!="":
+                        database[primary_key][field_name] = int(new_value)
+                        break
+                    elif datatype=="float" and new_value!="":
+                        database[primary_key][field_name] = float(new_value)
+                        break
+                    elif (datatype=="str" or datatype=="string") and new_value!="":
+                        database[primary_key][field_name] = str(new_value)
+                        break
+                except ValueError:
+                    print(f"Invalid value! Expected data type: {datatype}")
+        with open(f"{database_name}.eL", "w") as file:
+            dump(database,file)
+        print("Database Updated\nCurrent Table:")
+        search_database(primary_key)
+    else:
+        print("Primary Key",primary_key,"not found in the database")
 
 def delete_data_database():
-    database = load_database()
-    primary_key = input("Enter the primary key of the record to delete: ").strip()
-    if primary_key not in database:
-        print("Primary key not found.")
-        return
-
-    search_database(primary_key)
-    answer = input(f"Do you want to delete '{primary_key}'? (y/n): ").strip().lower()
-    if answer in ("y", "yes"):
-        del database[primary_key]
-        dump_database(database)
-        print("Deletion done.")
+    database=load_database()
+    primary_key=str(input("enter the primary key of the desired to delete:"))
+    if primary_key in database:
+        search_database(primary_key)
+        yn=input(f"do you want to delete {primary_key} y/n:")
+        if yn.lower()=="y" or yn.lower()=="yes":
+            del database[primary_key]
+            dump_database(database)
+            print("Deletion done")
+        else:
+            print("deletion abandoned")
     else:
-        print("Deletion cancelled.")
-
-
+        print("Primary key not found")
 def export_file_as_excel(database):
-    try:
-        from openpyxl import Workbook
-        from openpyxl.styles import Font
-    except ImportError:
-        print("Excel export requires openpyxl. Install it with: pip install openpyxl")
-        return
-
-    headers, rows = table_loader(database)
-    if not headers:
-        print("Nothing to export: no schema or records found.")
-        return
-
-    workbook = Workbook()
-    sheet = workbook.active
-    sheet.title = database_name[:31] or "Database"
-    sheet.append(headers)
-    for row in rows:
-        sheet.append(row)
-    for cell in sheet[1]:
+    from openpyxl import Workbook as workbook       #lazy
+    wbk=workbook()
+    wak=wbk.active
+    wak.title=f"{database_name}"
+    headers,rows=table_loader(database,"all","")
+    wak.append(headers)
+    for i in rows:
+        wak.append(i)
+    from openpyxl.styles import Font
+    for cell in wak[1]:
         cell.font = Font(bold=True)
-
-    output = Path(f"{database_name}.xlsx")
-    try:
-        workbook.save(output)
-        print(f"Excel file saved: {output}")
-    except OSError as exc:
-        print(f"Could not save Excel file: {exc}")
-
-
+    wbk.save(f"{database_name}.xlsx") 
 def database_name_taker():
     while True:
-        name = input("Enter the name of the database to use: ").strip()
-        if not name:
-            print("Database name cannot be empty.")
-            continue
-        # Keep the database files in the current folder; reject path separators.
-        if Path(name).name != name or name in (".", ".."):
-            print("Please enter a simple database name, not a path.")
-            continue
-
-        global database_name
-        database_name = name
-        if database_path().exists():
-            return name
-
-        print(f"Database '{name}' does not exist yet.")
-        answer = input("Create a new database? (y/n): ").strip().lower()
-        if answer in ("y", "yes"):
-            dump_database({})
-            return name
-
-
-def show_help():
-    help_data = [
-        [1, "Create Default", "Create student records with predefined fields and generated roll numbers."],
-        [2, "Create Custom Schema", "Define a primary key and fields using str, int, or float."],
-        [3, "Add Data", "Add records matching the active custom schema."],
-        [4, "View All", "Display all records."],
-        [5, "Search", "Find a record by its primary key."],
-        [6, "Update", "Update fields; press ENTER to retain existing values."],
-        [7, "Delete", "Delete a record after confirmation."],
-        [8, "Export", "Export records to an Excel .xlsx file (requires openpyxl)."],
-        [9, "Help", "Display this help."],
-        [10, "Exit", "Close registrarY."],
-    ]
-    print_table(help_data, ["Option", "Command", "Description"])
-
-
-def main():
-    global database_name
-    print(registrarY_text, "\n")
-    database_name = database_name_taker()
-    menu = [
-        ["1", "Create default"],
-        ["2", "Create custom schema"],
-        ["3", "Add data"],
-        ["4", "View all"],
-        ["5", "Search"],
-        ["6", "Update"],
-        ["7", "Delete"],
-        ["8", "Export"],
-        ["9", "Help"],
-        ["10", "Exit"],
-    ]
-
-    while True:
-        print("\nWhat do you want to do? Type 'menu' to show the menu.")
-        print_table(menu, ["Option", "Command"])
-        option = input("Enter your option/command >>> ").strip().lower()
-
+        database_name=str(input("Enter the name of the database to do the operations:"))
         try:
-            if option in ("create default", "1"):
-                create_default_database()
-            elif option in ("create custom schema", "2"):
-                custom_schema()
-            elif option in ("add data", "3"):
-                add_custom_data()
-            elif option in ("view all", "4"):
-                view_all()
-            elif option in ("search", "5"):
-                search_database(input("Enter primary key to search: ").strip())
-            elif option in ("update", "6"):
-                update_database()
-            elif option in ("del", "delete", "7"):
-                delete_data_database()
-            elif option in ("export", "8"):
-                export_file_as_excel(load_database())
-            elif option in ("help", "9"):
-                show_help()
-            elif option in ("exit", "10"):
-                print("Kicking you out of the program...\nDONE.")
-                break
-            elif option == "menu":
-                continue
+            with open(f"{database_name}.eL", "r") as file:
+                load(file)
+            if database_name!="" and database_name!=" ":
+                return database_name
+        except FileNotFoundError:
+            print(f"You will have create a new database {database_name} as the file doesnt exist \nand later continue to do operations on it") 
+            question1=str(input("do you want to create new database?y/n:"))
+            if question1.lower()=="y" or question1.lower()=="yes":
+                with open(f"{database_name}.eL", "w") as file:
+                    dump({},file)
+                clear_screen()
             else:
-                print("Invalid option. Enter a menu number or command.")
-        except (OSError, ValueError) as exc:
-            print(f"Operation failed: {exc}")
-        print("#" * 80)
+                clear_screen()
+                continue
+            return database_name
+        except Exception as e:
+            print(f"Error occured\nError name:{e}")
 
 
-if __name__ == "__main__":
-    main()
+registrarY_text=r"""
+                                 __             __                               _____ ___ 
+    _______    ____      ____   |__|   ______ _/  |_  _______  _____    _______  \__  |   |
+    \_  __ \ _/ __ \    / ___\  |  |  /  ___/ \   __\ \_  __ \ \__  \   \_  __ \  /   |   |
+     |  | \/ \  ___/   / /_/  > |  |  \___ \   |  |    |  | \/  / __ \_  |  | \/  \____   |
+     |__|     \___  >  \___  /  |__| /____  >  |__|    |__|    (____  /  |__|     / ______|
+                  \/  /_____/             \/                        \/            \/       """
 
+
+
+print(registrarY_text,"\n\n")
+database_name=database_name_taker()
+menu = [["(1)", "Create default"],["(2)", "Create custom Schema"],["(3)", "Add data"],["(4)", "View all"],["(5)", "Search"],["(6)", "Update"],["(7)", "Delete"],["(8)", "Export"],["(9)", "Help"],["(10)", "Exit"]]
+number_for_check=0
+while True:
+    print("What do you want to do?\nType Menu for printing menu/Help for Help ")
+    if number_for_check==0:
+        headers=["Option","Cammand"]
+        max_col_width = max(10, screen_size // len(headers))
+        print(tabulate(menu,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
+        number_for_check=1
+    option=str(input("Enter your option/command >>>"))
+    if option.lower()=="create default" or option=="1":
+        clear_screen()
+        create_default_database()
+    elif option.lower()=="create custom schema" or option=="2":
+        clear_screen()
+        custom_schema()
+    elif option.lower()=="add data" or option=="3":
+        clear_screen()
+        add_custom_data()
+    elif option.lower()=="view all" or option=="4":
+        clear_screen()
+        view_all()
+    elif option.lower()=="search" or option=="5":
+        clear_screen()
+        primary_key = input(f"Enter primary key to search: ")
+        search_database(primary_key)
+    elif option.lower()=="update" or option=="6":
+        update_database()
+    elif option.lower()=="del" or option.lower()=="delete" or option.lower()=="7":
+        delete_data_database()
+    elif option.lower()=="export" or option.lower()=="8":
+        clear_screen()
+        database=load_database()
+        print("File save successfully")
+        export_file_as_excel(database)
+    elif option.lower()=="help" or option=="9":
+        clear_screen()
+        help_data = [
+    [1, "Create Default\n",
+     "Create a standard student database with predefined fields\n"
+     "Name, Date of Birth, Father's Name, and Mother's Name. \n"
+     "Automatically generate unique Roll Numbers (e.g., A0001) \n"
+     "for each student record.\n"],
+
+    [2, "Create Custom Schema\n",
+     "Design a database structure by specifying a unique primary key \n"
+     "and custom field names with their data types (str, int, float). \n"
+     "The schema defines the fields available when adding and managing records.\n"],
+
+    [3, "Add Data\n",
+     "Insert new records into the active database using its defined schema. \n"
+     "Enter a unique primary key and provide values matching the assigned \n"
+     "data types. Existing primary keys cannot be reused.\n"],
+
+    [4, "View All\n",
+     "Display all records in the active database in a structured table. \n"
+     "Column headers are generated from the schema, making records easier \n"
+     "to read and compare.\n"],
+
+    [5, "Search\n",
+     "Retrieve a specific record by entering its unique primary key \n"
+     "or Roll Number. Displays the matching record's primary key, \n"
+     "field names, and stored values.\n"],
+
+    [6, "Update\n",
+     "Modify the field values of an existing record by entering its \n"
+     "primary key. Press ENTER without typing a new value to retain \n"
+     "the existing value. Changes are saved to the database file.\n"],
+
+    [7, "Delete\n",
+     "Remove a record from the active database using its primary key. \n"
+     "The record is displayed before deletion, and confirmation is \n"
+     "requested to help prevent accidental data loss.\n"],
+
+    [8, "Export\n",
+     "Export the active database records to an Excel (.xlsx) file. \n"
+     "The first row contains column headers formatted in bold, followed \n"
+     "by the database records. Requires the openpyxl package.\n"],
+
+    [9, "Help",
+     "Display this navigation guide, including menu options, feature "
+     "descriptions, and supported commands for managing the database."],
+
+    [10, "Exit",
+     "Terminate the registrarY session. Database modifications are saved by their respective operations before exiting."]
+]
+        headers = ["Option", "Action", "Description"]
+        max_col_width = max(10, screen_size // len(headers))
+        print(tabulate(help_data,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
+    elif option.lower()=="exit" or option=="10":
+        clear_screen()
+        print("""Kicking you out of the program......
+DONE.""")
+        break
+    elif option.lower()=="menu" or option=="":
+        clear_screen()
+        headers=["Option","Cammand"]
+        max_col_width = max(10, screen_size // len(headers))
+        print(tabulate(menu,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
+    else:
+        clear_screen()
+        headers=["Option","Cammand"]
+        max_col_width = max(10, screen_size // len(headers))
+        print(tabulate(menu,["Option","Cammand"],tablefmt="rounded_grid",maxcolwidths=max_col_width))
+        print("input valid option create/search")
+    print("#" * 100)
