@@ -1,35 +1,3 @@
-valid_record=False
-                            break
-                        record[field_name]=value
-                        break
-                    except ValueError:
-                        print(f"Invalid value! Expected data type: {data_type}")
-                if not valid_record:
-                    break
-            if valid_record:
-                database[primary_key]=record
-        dump_database(database)
-    except ValueError:
-        print("Please enter a valid number and values matching the assigned data types.")
-    except OSError as e:
-        print(f"{e} has occurred. Check file permissions and antivirus settings.")
-    except Exception as e:
-        print(f"Error occurred: {e}")
-
-
-def view_all():
-    database = load_database()
-    if not database:
-        print("The database is empty.")
-        return
-    headers,rows=table_loader(database,"all","")
-    max_col_width = max(10, screen_size // max(1, len(headers)))
-    print(tabulate(rows,headers,tablefmt="rounded_grid",maxcolwidths=max_col_width))
-
-
-def search_database(primary_key):
-    database=load_database()
-    if primary_key in database:
         headers,table_list=table_loader(database,"single",primary_key)
         if headers and table_list:
             max_col_width = max(10, screen_size // max(1, len(headers)))
@@ -190,3 +158,35 @@ while True:
     [2, "Create Custom Schema\n",
      "Design a database structure by specifying a unique primary key \n"
      "and custom field names with their data types (str, int, float). \n"
+     "The schema defines the fields available when adding and managing records.\n"],
+
+    [3, "Add Data\n",
+     "Insert new records into the active database using its defined schema. \n"
+     "Enter a unique primary key and provide values matching the assigned \n"
+     "data types. Existing primary keys cannot be reused.\n"],
+
+    [4, "View All\n",
+     "Display all records in the active database in a structured table. \n"
+     "Column headers are generated from the schema, making records easier \n"
+     "to read and compare.\n"],
+
+    [5, "Search\n",
+     "Retrieve a specific record by entering its unique primary key \n"
+     "or Roll Number. Displays the matching record's primary key, \n"
+     "field names, and stored values.\n"],
+
+    [6, "Update\n",
+     "Modify the field values of an existing record by entering its \n"
+     "primary key. Press ENTER without typing a new value to retain \n"
+     "the existing value. Changes are saved to the database file.\n"],
+
+    [7, "Delete\n",
+     "Remove a record from the active database using its primary key. \n"
+     "The record is displayed before deletion, and confirmation is \n"
+     "requested to help prevent accidental data loss.\n"],
+
+    [8, "Export\n",
+     "Export the active database records to an Excel (.xlsx) file. \n"
+     "The first row contains column headers formatted in bold, followed \n"
+     "by the database records. Requires the openpyxl package.\n"],
+
