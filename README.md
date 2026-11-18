@@ -1,80 +1,37 @@
 # registrarY
 
-A Python-based command-line application for creating and managing structured databases using JSON files. Create student databases, define custom schemas, manage records, search data, and export records to Excel.
+**A lightweight Python-based record management system with CLI, Lite, and GUI editions.**
+
+registrarY helps you create and manage structured databases locally using Python. It supports student records, custom schemas, record management, searching, and Excel export.
 
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat&logo=github&logoColor=white)](https://github.com/randomhumanfromearth/registrarY)
 
-> **Fork notice:** This repository is an independently maintained fork of [lyashwith/registrarY](https://github.com/lyashwith/registrarY). It builds upon the original project while maintaining its own changes and development history. Changes in this repository are not automatically submitted to the upstream project.
+> **Fork notice:** This repository is an independently maintained fork of [lyashwith/registrarY](https://github.com/lyashwith/registrarY). It builds upon the original project while introducing additional versions and modifications. Development in this repository is independent of the upstream project.
 
 ---
 
-## Overview
+## Editions
 
-registrarY is a lightweight record-management application written in Python. It stores records locally in JSON-based files and provides an interactive command-line menu for managing them.
+registrarY provides three editions to suit different preferences.
 
-The application supports both a predefined student database and user-defined database schemas. Records can be added, viewed, searched, updated, deleted, and exported to Excel.
+| Edition | Interface | Description |
+|---|---|---|
+| **registrarY CLI** | Terminal | The original command-line application for managing databases through an interactive menu. |
+| **registrarY Lite** | Lightweight | A streamlined edition intended to provide a lightweight way to use registrarY. |
+| **registrarY GUI** | Desktop GUI | A graphical desktop interface for managing records without using terminal menus. |
 
-## Features
+### 1. registrarY CLI
 
-- **Default student database** — Create student records with predefined fields and automatically generated roll numbers.
-- **Custom schemas** — Define your own primary key, field names, and data types.
-- **Add records** — Insert records while checking for duplicate primary keys.
-- **View records** — Display database records in formatted tables.
-- **Search records** — Find records using their primary keys.
-- **Update records** — Modify existing records while retaining unchanged values.
-- **Delete records** — Remove records with confirmation.
-- **Excel export** — Export records into `.xlsx` workbooks.
-- **Local storage** — Store database and schema information in JSON-based files.
+The original terminal-based application.
 
-## Preview
-
-### Command-line interface
-
-![registrarY Preview](https://raw.githubusercontent.com/randomhumanfromearth/registrarY/main/Documents/IMG-20261011-WA0001.jpg)
-
-![registrarY Preview](https://raw.githubusercontent.com/randomhumanfromearth/registrarY/main/Documents/IMG-20261011-WA0002.jpg)
-
-## Requirements
-
-- Python 3
-- `tabulate`
-- `openpyxl` (required for Excel export)
-
-The `json`, `os`, and `subprocess` modules are included with Python.
-
-## Installation
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/randomhumanfromearth/registrarY.git
-```
-
-### 2. Enter the project directory
-
-```bash
-cd registrarY
-```
-
-### 3. Install dependencies
-
-```bash
-python3 -m pip install tabulate openpyxl
-```
-
-### 4. Run registrarY
-
-```bash
-python3 registrarY/registrarY.py
-```
-
-The application will ask you for a database name when it starts.
-
-## Usage
-
-### Starting the application
+Features include:
+- Create student databases.
+- Define custom database schemas.
+- Add, view, search, update, and delete records.
+- Export records to Excel.
+- Store databases locally in JSON-based files.
 
 Run:
 
@@ -82,71 +39,116 @@ Run:
 python3 registrarY/registrarY.py
 ```
 
-Enter a database name when prompted:
+### 2. registrarY Lite
+
+A lightweight edition maintained separately from the main application.
+
+It provides an alternative for users who prefer a smaller, streamlined version of registrarY.
+
+The Lite edition is maintained in:
 
 ```text
-Enter the name of the database to do the operations: students
+registrarY-lite/
 ```
 
-registrarY looks for a corresponding `students.eL` file in the current working directory. If it does not exist, the application offers to create a new database.
+Navigate to that directory and run its main Python entry point.
 
-### Menu
+### 3. registrarY GUI
 
-The application provides the following operations:
+A desktop graphical interface designed to make database management easier and more accessible.
 
-| Option | Operation |
-|:---:|---|
-| 1 | Create default database |
-| 2 | Create custom schema |
-| 3 | Add data |
-| 4 | View all records |
-| 5 | Search |
-| 6 | Update |
-| 7 | Delete |
-| 8 | Export to Excel |
-| 9 | Help |
-| 10 | Exit |
+Instead of navigating terminal menus, users can interact with records through a graphical application.
 
-You can enter the option number or, where supported, the corresponding command.
+Planned interface capabilities include:
+- Dashboard with database statistics.
+- Add and edit records through forms.
+- Search and browse database records.
+- Delete records with confirmation.
+- Manage custom schemas.
+- Export records to Excel.
+- Open and create database files.
 
-## Default student database
-
-Select **1 — Create default** to create a student database.
-
-Each record contains:
-
-| Field | Description |
-|---|---|
-| `Name` | Student's name |
-| `date_of_birth` | Date of birth |
-| `father_name` | Father's name |
-| `mother_name` | Mother's name |
-
-The application automatically generates roll numbers in this format:
+The GUI edition is maintained separately in:
 
 ```text
-A0001
-A0002
-A0003
+registrarYGUI/
 ```
 
-The date of birth is requested in `DD-MM-YYYY` format.
+It uses Python's Tkinter interface and can be launched independently of the CLI.
 
-The current roll-number format supports a maximum of 26,000 records per generated database.
+---
+
+## Features
+
+- **Student database:** Create and manage student records.
+- **Custom schemas:** Define your own primary keys, fields, and data types.
+- **Record management:** Add, view, search, update, and delete records.
+- **Excel export:** Export database records to `.xlsx` workbooks.
+- **Local storage:** Keep database information in local JSON-based files.
+- **Multiple editions:** Choose between CLI, Lite, and GUI interfaces.
+
+---
+
+## Installation
+
+### Clone the repository
+
+```bash
+git clone https://github.com/randomhumanfromearth/registrarY.git
+cd registrarY
+```
+
+### CLI edition
+
+Install the required packages:
+
+```bash
+python3 -m pip install tabulate openpyxl
+```
+
+Run:
+
+```bash
+python3 registrarY/registrarY.py
+```
+
+### Lite edition
+
+Navigate to the Lite directory:
+
+```bash
+cd registrarY-lite
+```
+
+Install the dependencies specified for that edition, then run its main Python entry point.
+
+### GUI edition
+
+Install Tkinter on Ubuntu/Debian:
+
+```bash
+sudo apt install python3-tk
+```
+
+Install the GUI dependencies:
+
+```bash
+python3 -m pip install -r registrarYGUI/requirements-gui.txt
+```
+
+Launch the GUI from the repository root:
+
+```bash
+python3 registrarYGUI/registrarY_gui.py
+```
+
+---
 
 ## Custom schemas
 
-Select **2 — Create custom schema** to define your own record structure.
+registrarY supports custom database structures.
 
-First, enter a primary key name. Then specify the fields and their data types.
-
-Example:
-
-```text
-name;str,age;int,percentage;float
-```
-
-If the primary key is `id`, the resulting schema is:
+For example, a database can use the following schema:
 
 ```json
 {
@@ -158,136 +160,101 @@ If the primary key is `id`, the resulting schema is:
 }
 ```
 
-### Supported data types
+Supported data types:
 
-| Type | Description | Example |
-|---|---|---|
-| `str` | Text | `"Arun"` |
-| `int` | Integer | `18` |
-| `float` | Decimal number | `93.17` |
+| Type | Description |
+|---|---|
+| `str` | Text |
+| `int` | Integer |
+| `float` | Decimal number |
 
-The primary key uniquely identifies each record. Duplicate primary keys are not accepted.
+The primary key uniquely identifies each record.
 
-Create a custom schema before adding records that use it.
+---
 
-## Managing records
+## Default student database
 
-### Add records
+The default student database includes:
 
-Select **3 — Add data**.
+| Field | Description |
+|---|---|
+| `Name` | Student's name |
+| `date_of_birth` | Date of birth |
+| `father_name` | Father's name |
+| `mother_name` | Mother's name |
 
-Enter the number of records and provide a unique primary key followed by the values for the schema fields.
-
-Example:
-
-```text
-Enter id for entry number1: 101
-Enter name (str): Arun
-Enter age (int): 18
-Enter percentage (float): 93.17
-```
-
-Values are checked against the data types defined in the schema.
-
-### View records
-
-Select **4 — View all** to display all records in a formatted table.
-
-### Search
-
-Select **5 — Search** and enter the primary key of the record you want to find.
-
-### Update
-
-Select **6 — Update** and enter the primary key of the record.
-
-Enter new values for the fields you want to change. Press **Enter** without entering a value to retain the existing value.
-
-### Delete
-
-Select **7 — Delete** and enter the primary key of the record.
-
-The application displays the selected record and asks for confirmation before deleting it.
-
-## Export to Excel
-
-Select **8 — Export** to export the active database to an Excel workbook.
-
-For a database named `students`, the output file is:
+Student roll numbers are automatically generated in this format:
 
 ```text
-students.xlsx
+A0001
+A0002
+A0003
 ```
 
-The workbook contains the record fields as column headers, followed by the stored records. The header row is formatted in bold.
+---
 
-Install `openpyxl` if it is not already installed:
+## Storage
 
-```bash
-python3 -m pip install openpyxl
-```
-
-## Storage format
-
-registrarY uses Python's built-in JSON serialization for local storage. The file extensions are specific to this project; the contents are JSON.
+The original CLI edition uses JSON-based local storage.
 
 | File | Purpose |
 |---|---|
-| `<database_name>.eL` | Stores database records |
-| `custom_schema-<database_name>.eLs` | Stores the custom schema |
+| `<database_name>.eL` | Database records |
+| `custom_schema-<database_name>.eLs` | Custom schema |
 | `<database_name>.xlsx` | Excel export |
 
-Example:
+The file extensions are specific to registrarY; the database and schema contents are JSON.
 
-```text
-students.eL
-custom_schema-students.eLs
-students.xlsx
-```
+Keep backups of important database files.
 
-Database and schema files are created in the application's current working directory.
+---
 
 ## Project structure
 
 ```text
 registrarY/
+│
 ├── registrarY/
 │   └── registrarY.py
+│
+├── registrarY-lite/
+│   └── ...
+│
+├── registrarYGUI/
+│   ├── registrarY_gui.py
+│   └── requirements-gui.txt
+│
 ├── Documents/
 │   └── screenshots
+│
 ├── LICENSE
 └── README.md
 ```
 
-Database files, schema files, and exported workbooks are generated when the application is used.
+---
 
-## Current limitations
+## Original project and attribution
 
-- Database records are stored locally; cloud synchronization is not provided.
-- The complete JSON database is loaded into memory for operations.
-- The application does not provide user authentication or database encryption.
-- Supported custom field types are `str`, `int`, and `float`.
-- Database backups and automatic recovery are not built in.
-- The application is intended for lightweight record management and experimentation, not as a replacement for a production database system.
-
-Keep backups of important database files.
-
-## License
-
-This project is distributed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
-
-See the [LICENSE](LICENSE) file for the complete license terms.
-
-## Original project
-
-This repository is a separate fork of:
+This repository is a separate, independently maintained fork of:
 
 **[lyashwith/registrarY](https://github.com/lyashwith/registrarY)**
 
-The original project and its author retain their respective attribution. This fork is maintained independently.
+The original project is the foundation of this repository. Credit for the original work belongs to its original author.
+
+This fork maintains its own development direction, modifications, and additional editions.
+
+---
+
+## License
+
+Distributed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+
+See [LICENSE](LICENSE) for the complete license terms.
+
+---
 
 ## Repository
 
-[![GitHub Repository](https://img.shields.io/badge/GitHub-randomhumanfromearth%2FregistrarY-181717?style=flat&logo=github&logoColor=white)](https://github.com/randomhumanfromearth/registrarY)
+[GitHub – randomhumanfromearth/registrarY](https://github.com/randomhumanfromearth/registrarY)
 
 If you find this project useful, consider giving it a ⭐.
